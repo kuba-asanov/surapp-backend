@@ -2,7 +2,7 @@
 
   
 
-Surapp is a powerful and scalable application built using the NestJS framework. Surapp aims to help people get information about Islam by allowing users to ask questions and receive answers from knowledgeable reciters.
+Surapp is Q&A app built using the NestJS framework. Surapp aims to help people get information about Islam by allowing users to ask questions and receive answers from knowledgeable reciters.
 
   
 
