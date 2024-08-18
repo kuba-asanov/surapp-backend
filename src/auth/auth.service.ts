@@ -43,13 +43,9 @@ export class AuthService {
   }
 
   async validateUser(loginDto: LoginDto): Promise<User> {
-    const { username, phone, password } = loginDto;
+    const { username, password } = loginDto;
 
-    const user = await this.usersService.getBy(
-      [{ username }, { phone }],
-      {},
-      false,
-    );
+    const user = await this.usersService.getBy([{ username }], {}, false);
     if (!user) {
       throw new UnauthorizedException(
         ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD,
