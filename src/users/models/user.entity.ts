@@ -1,7 +1,8 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from 'src/shared/models/base-entity';
 import { UserRole } from 'src/infrastructure/enums/user-role.enum';
+import { PostEntity } from 'src/posts/models/post.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -34,4 +35,10 @@ export class User extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   device_id: string;
+
+  @OneToMany(() => PostEntity, (post) => post.author)
+  posts: PostEntity[];
+
+  @OneToMany(() => PostEntity, (post) => post.recipient)
+  answers: PostEntity[];
 }
