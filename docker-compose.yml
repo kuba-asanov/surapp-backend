@@ -1,0 +1,22 @@
+version: "3.4"
+
+services:
+  surapp-api:
+    container_name: surapp-api
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PORT}:${PORT}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - db_local
+    
+
+networks:
+  db_local:
+    external: true
+
