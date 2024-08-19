@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -13,6 +14,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { ICurrentUserPayload } from 'src/infrastructure/interfaces/current-user-payload.interface';
+import { ListParamsDto } from 'src/shared/dto/list-params.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -33,8 +35,8 @@ export class PostsController {
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get list of posts' })
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Query() listParamsDto: ListParamsDto) {
+    return this.postsService.findAll(listParamsDto);
   }
 
   @Get(':id')

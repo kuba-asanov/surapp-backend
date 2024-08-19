@@ -1,3 +1,4 @@
+import { ListParamsDto } from 'src/shared/dto/list-params.dto';
 import {
   BadRequestException,
   Injectable,
@@ -12,6 +13,7 @@ import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { UserRole } from 'src/infrastructure/enums/user-role.enum';
 import { ErrorMessages } from 'src/infrastructure/enums/error-messages.enum';
+import { ListDto } from 'src/shared/dto/list.dto';
 
 @Injectable()
 export class PostsService extends BaseService<PostEntity> {
@@ -23,7 +25,10 @@ export class PostsService extends BaseService<PostEntity> {
     super(postsRepository);
   }
 
-  async create(userId: number, createPostDto: CreatePostDto) {
+  async create(
+    userId: number,
+    createPostDto: CreatePostDto,
+  ): Promise<PostEntity> {
     const { recipientId } = createPostDto;
     const author = await this.usersService.getBy({ id: userId });
 
@@ -47,22 +52,29 @@ export class PostsService extends BaseService<PostEntity> {
     return await this.postsRepository.save(newPost);
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll(listParams: ListParamsDto): Promise<ListDto<PostEntity>> {
+    const posts = await this.list(listParams);
+
+    return posts;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: number) {
+    const post = await this.getBy({ id });
+
+    return post;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return {
-      id,
-      updatePostDto,
-    };
+  async update(id: number, updatePostDto: UpdatePostDto): Promise<PostEntity> {
+    const post = await this.getBy({ id });
+
+    post.absorbFromDto(updatePostDto);
+
+    return this.postsRepository.save(post);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: number): Promise<PostEntity> {
+    const post = await this.getBy({ id });
+
+    return this.postsRepository.remove(post);
   }
 }
