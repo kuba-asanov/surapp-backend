@@ -6,7 +6,7 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${PORT}:${PORT}"
+      - "${PORT}:${PORT}"
     logging:
       driver: "json-file"
       options:
