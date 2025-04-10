@@ -12,11 +12,37 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
+    depends_on:
+      - surapp_db
     networks:
-      - db_local
-    
+      - surapp_net
+
+  surapp_db:
+    container_name: surapp_db
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+      POSTGRES_DB: '${DB_NAME}'
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    volumes:
+      - surapp-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    tty: true
+    networks:
+      - surapp_net
 
 networks:
-  db_local:
+  surapp_net:
     external: true
+
+volumes:
+  surapp-db-volume:
+
 
