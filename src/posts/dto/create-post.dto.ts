@@ -6,11 +6,6 @@ export class CreatePostDto extends BaseDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  title: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   content: string;
 
   @ApiProperty({
