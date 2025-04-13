@@ -6,11 +6,6 @@ export class UpdatePostDto extends BaseDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  title?: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
   content?: string;
 
   @ApiProperty({

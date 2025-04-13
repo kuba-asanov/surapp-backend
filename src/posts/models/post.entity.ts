@@ -8,11 +8,6 @@ export class PostEntity extends BaseEntity {
   @Column({
     type: 'text',
   })
-  title: string;
-
-  @Column({
-    type: 'text',
-  })
   content: string;
 
   @Column({
