@@ -26,7 +26,7 @@ export class PostEntity extends BaseEntity {
     enum: PostStatus,
     default: PostStatus.PENDING,
   })
-  status: string;
+  status: PostStatus;
 
   @ManyToOne(() => User)
   author: User;

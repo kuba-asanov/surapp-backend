@@ -15,6 +15,8 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { ICurrentUserPayload } from 'src/infrastructure/interfaces/current-user-payload.interface';
 import { ListParamsDto } from 'src/shared/dto/list-params.dto';
+import { PostStatus } from 'src/infrastructure/enums/post-status.enum';
+import { AnswerPostDto } from './dto/answer-post.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -36,7 +38,24 @@ export class PostsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get list of posts' })
   findAll(@Query() listParamsDto: ListParamsDto) {
-    return this.postsService.findAll(listParamsDto);
+    return this.postsService.list(
+      listParamsDto,
+      {},
+      { author: true, recipient: true },
+    );
+  }
+
+  @Get('answered')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get list of posts' })
+  findAnswered(@Query() listParamsDto: ListParamsDto) {
+    return this.postsService.list(
+      listParamsDto,
+      {
+        status: PostStatus.ANSWERED,
+      },
+      { author: true, recipient: true },
+    );
   }
 
   @Get(':id')
@@ -46,11 +65,107 @@ export class PostsController {
     return this.postsService.findOne(+id);
   }
 
+  @Get('my/pending')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get my pending questions' })
+  getMyPendingPosts(
+    @Query() listParamsDto: ListParamsDto,
+    @CurrentUser() currentUser: ICurrentUserPayload,
+  ) {
+    const { sub } = currentUser;
+
+    return this.postsService.list(
+      listParamsDto,
+      {
+        author: {
+          id: sub,
+        },
+        status: PostStatus.PENDING,
+      },
+      { author: true, recipient: true },
+    );
+  }
+
+  @Get('my/answered')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get my answered questions' })
+  getMyAnsweredPosts(
+    @Query() listParamsDto: ListParamsDto,
+    @CurrentUser() currentUser: ICurrentUserPayload,
+  ) {
+    const { sub } = currentUser;
+
+    return this.postsService.list(
+      listParamsDto,
+      {
+        author: {
+          id: sub,
+        },
+        status: PostStatus.ANSWERED,
+      },
+      { author: true, recipient: true },
+    );
+  }
+
+  @Get('reciter/incoming')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get list of incoming questions for a reciter' })
+  getReciterIncoming(
+    @Query() listParamsDto: ListParamsDto,
+    @CurrentUser() currentUser: ICurrentUserPayload,
+  ) {
+    const { sub } = currentUser;
+
+    return this.postsService.list(
+      listParamsDto,
+      {
+        recipient: {
+          id: sub,
+        },
+        status: PostStatus.PENDING,
+      },
+      { author: true, recipient: true },
+    );
+  }
+
+  @Get('reciter/answered')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get list of answered questions for a reciter' })
+  getReciterAnswered(
+    @Query() listParamsDto: ListParamsDto,
+    @CurrentUser() currentUser: ICurrentUserPayload,
+  ) {
+    const { sub } = currentUser;
+
+    return this.postsService.list(
+      listParamsDto,
+      {
+        recipient: {
+          id: sub,
+        },
+        status: PostStatus.ANSWERED,
+      },
+      { author: true, recipient: true },
+    );
+  }
+
   @Patch(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a post by id' })
   update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.postsService.update(+id, updatePostDto);
+  }
+
+  @Patch('answer/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a post by id' })
+  answer(
+    @Param('id') id: string,
+    @Body() updatePostDto: AnswerPostDto,
+    @CurrentUser() currentUser: ICurrentUserPayload,
+  ) {
+    const { sub } = currentUser;
+    return this.postsService.reciterAnswer(sub, +id, updatePostDto);
   }
 
   @Delete(':id')
