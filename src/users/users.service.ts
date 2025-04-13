@@ -5,6 +5,7 @@ import { User } from './models/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ErrorMessages } from 'src/infrastructure/enums/error-messages.enum';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService extends BaseService<User> {
@@ -36,9 +37,9 @@ export class UsersService extends BaseService<User> {
       }
     }
 
-    if (!email && !phone) {
-      throw new BadRequestException(ErrorMessages.EMAIL_OR_PHONE_EMPTY);
-    }
+    // if (!email && !phone) {
+    //   throw new BadRequestException(ErrorMessages.EMAIL_OR_PHONE_EMPTY);
+    // }
 
     const newUser = new User();
     newUser.absorbFromDto(createUserDto);
@@ -66,5 +67,12 @@ export class UsersService extends BaseService<User> {
     );
 
     return userExists;
+  }
+
+  async updateProfile(userId: number, updateDto: UpdateUserDto) {
+    const user = await this.getBy({ id: userId });
+    user.absorbFromDto(updateDto);
+
+    return this.userRepository.save(user);
   }
 }

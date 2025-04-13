@@ -2,7 +2,6 @@ import {
   IsEmail,
   IsString,
   IsNotEmpty,
-  MinLength,
   Matches,
   IsOptional,
 } from 'class-validator';
@@ -18,7 +17,6 @@ export class CreateUserDto extends BaseDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(7)
   password: string;
 
   @IsOptional()
