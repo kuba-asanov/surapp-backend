@@ -15,6 +15,12 @@ export class UsersController {
     return this.usersService.list(listParams);
   }
 
+  @Get('reciters')
+  @Public()
+  async getReciters(@Query() listParams: ListParamsDto) {
+    return this.usersService.list(listParams, { role: 1 });
+  }
+
   @Get(':id')
   @Public()
   async getUserById(@Param('id') id: string) {
