@@ -10,7 +10,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { BaseService } from 'src/shared/base.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './models/post.entity';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { UserRole } from 'src/infrastructure/enums/user-role.enum';
 import { ErrorMessages } from 'src/infrastructure/enums/error-messages.enum';
@@ -67,8 +67,32 @@ export class PostsService extends BaseService<PostEntity> {
     return await this.postsRepository.save(newPost);
   }
 
-  async findAll(listParams: ListParamsDto): Promise<ListDto<PostEntity>> {
-    const posts = await this.list(listParams, { categories: true });
+  async findAll(listParams: PostListParamsDto): Promise<ListDto<PostEntity>> {
+    const { categoryIds, status, search } = listParams;
+
+    const whereOptions:
+      | FindOptionsWhere<PostEntity>
+      | FindOptionsWhere<PostEntity>[] = {};
+
+    if (categoryIds?.length) {
+      whereOptions.categories = {
+        id: In(categoryIds),
+      };
+    }
+
+    if (Object.values(PostStatus).includes(status)) {
+      whereOptions.status = status;
+    }
+
+    if (search) {
+      whereOptions.content = ILike(`%${search}%`);
+    }
+
+    const posts = await this.list(listParams, whereOptions, {
+      categories: true,
+      author: true,
+      recipient: true,
+    });
 
     return posts;
   }

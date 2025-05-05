@@ -39,12 +39,8 @@ export class PostsController {
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get list of posts' })
-  async findAll(@Query() listParamsDto: ListParamsDto) {
-    return this.postsService.list(
-      listParamsDto,
-      {},
-      { author: true, recipient: true },
-    );
+  async findAll(@Query() listParamsDto: PostListParamsDto) {
+    return this.postsService.findAll(listParamsDto);
   }
 
   @Get('categories')

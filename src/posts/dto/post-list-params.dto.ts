@@ -1,6 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsArray, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { PostStatus } from 'src/infrastructure/enums/post-status.enum';
 import { ListParamsDto } from 'src/shared/dto/list-params.dto';
 
 export class PostListParamsDto extends ListParamsDto {
@@ -17,4 +24,24 @@ export class PostListParamsDto extends ListParamsDto {
   )
   @IsOptional()
   categoryIds?: number[];
+
+  @ApiPropertyOptional({
+    enum: PostStatus,
+    description: 'Filter by post status',
+    example: PostStatus.PENDING,
+    required: false,
+  })
+  @IsEnum(PostStatus)
+  @Transform(({ value }) => Number(value))
+  @IsOptional()
+  status?: PostStatus;
+
+  @ApiPropertyOptional({
+    description: 'Search term for filtering post content',
+    example: 'how to pray',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
 }
