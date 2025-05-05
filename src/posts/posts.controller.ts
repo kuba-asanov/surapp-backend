@@ -17,16 +17,18 @@ import { ICurrentUserPayload } from 'src/infrastructure/interfaces/current-user-
 import { ListParamsDto } from 'src/shared/dto/list-params.dto';
 import { PostStatus } from 'src/infrastructure/enums/post-status.enum';
 import { AnswerPostDto } from './dto/answer-post.dto';
+import { PostListParamsDto } from './dto/post-list-params.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
+@ApiBearerAuth()
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a post' })
-  create(
+  async create(
     @Body() createPostDto: CreatePostDto,
     @CurrentUser() currentUser: ICurrentUserPayload,
   ) {
@@ -37,7 +39,7 @@ export class PostsController {
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get list of posts' })
-  findAll(@Query() listParamsDto: ListParamsDto) {
+  async findAll(@Query() listParamsDto: ListParamsDto) {
     return this.postsService.list(
       listParamsDto,
       {},
@@ -45,10 +47,16 @@ export class PostsController {
     );
   }
 
+  @Get('categories')
+  @ApiOperation({ summary: 'Get list of posts by categories' })
+  async findByCategories(@Query() listParamsDto: PostListParamsDto) {
+    return this.postsService.getByCategories(listParamsDto);
+  }
+
   @Get('answered')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get list of posts' })
-  findAnswered(@Query() listParamsDto: ListParamsDto) {
+  async findAnswered(@Query() listParamsDto: ListParamsDto) {
     return this.postsService.list(
       listParamsDto,
       {
@@ -62,7 +70,14 @@ export class PostsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a post by id' })
   findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+    return this.postsService.getBy(
+      {
+        id: +id,
+      },
+      {
+        categories: true,
+      },
+    );
   }
 
   @Get('my/pending')

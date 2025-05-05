@@ -1,7 +1,8 @@
+import { Category } from 'src/categories/models/category.entity';
 import { PostStatus } from 'src/infrastructure/enums/post-status.enum';
 import { BaseEntity } from 'src/shared/models/base-entity';
 import { User } from 'src/users/models/user.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne } from 'typeorm';
 
 @Entity('posts')
 export class PostEntity extends BaseEntity {
@@ -28,4 +29,7 @@ export class PostEntity extends BaseEntity {
 
   @ManyToOne(() => User)
   recipient: User;
+
+  @ManyToMany(() => Category, (category) => category.posts)
+  categories: Category[];
 }

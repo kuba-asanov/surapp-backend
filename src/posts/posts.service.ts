@@ -10,13 +10,15 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { BaseService } from 'src/shared/base.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './models/post.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { UserRole } from 'src/infrastructure/enums/user-role.enum';
 import { ErrorMessages } from 'src/infrastructure/enums/error-messages.enum';
 import { ListDto } from 'src/shared/dto/list.dto';
 import { AnswerPostDto } from './dto/answer-post.dto';
 import { PostStatus } from 'src/infrastructure/enums/post-status.enum';
+import { CategoriesService } from 'src/categories/categories.service';
+import { PostListParamsDto } from './dto/post-list-params.dto';
 
 @Injectable()
 export class PostsService extends BaseService<PostEntity> {
@@ -24,6 +26,7 @@ export class PostsService extends BaseService<PostEntity> {
     @InjectRepository(PostEntity)
     private readonly postsRepository: Repository<PostEntity>,
     private readonly usersService: UsersService,
+    private readonly categoriesService: CategoriesService,
   ) {
     super(postsRepository);
   }
@@ -32,7 +35,7 @@ export class PostsService extends BaseService<PostEntity> {
     userId: number,
     createPostDto: CreatePostDto,
   ): Promise<PostEntity> {
-    const { recipientId } = createPostDto;
+    const { recipientId, categoryIds } = createPostDto;
     const author = await this.usersService.getBy({ id: userId });
 
     const recipient = await this.usersService.getBy(
@@ -50,25 +53,65 @@ export class PostsService extends BaseService<PostEntity> {
     const newPost = new PostEntity();
     newPost.author = author;
     newPost.recipient = recipient;
+
+    const categoriesList = await this.categoriesService.list(
+      new ListParamsDto(),
+      {
+        id: In(categoryIds),
+      },
+    );
+
+    newPost.categories = categoriesList.data;
     newPost.absorbFromDto(createPostDto);
 
     return await this.postsRepository.save(newPost);
   }
 
   async findAll(listParams: ListParamsDto): Promise<ListDto<PostEntity>> {
-    const posts = await this.list(listParams);
+    const posts = await this.list(listParams, { categories: true });
 
     return posts;
   }
 
-  async findOne(id: number) {
-    const post = await this.getBy({ id });
+  async getByCategories(listParamsDto: PostListParamsDto) {
+    const { categoryIds } = listParamsDto;
 
-    return post;
+    let whereOptions = {};
+
+    if (categoryIds) {
+      whereOptions = {
+        categories: {
+          id: In(categoryIds),
+        },
+      };
+    }
+
+    const posts = await this.list(listParamsDto, whereOptions, {
+      author: true,
+      recipient: true,
+      categories: true,
+    });
+
+    return posts;
   }
 
   async update(id: number, updatePostDto: UpdatePostDto): Promise<PostEntity> {
-    const post = await this.getBy({ id });
+    const { categoryIds } = updatePostDto;
+    const post = await this.getBy(
+      { id },
+      {
+        categories: true,
+      },
+    );
+
+    const categoriesList = await this.categoriesService.list(
+      new ListParamsDto(),
+      {
+        id: In(categoryIds),
+      },
+    );
+
+    post.categories = categoriesList.data;
 
     post.absorbFromDto(updatePostDto);
 
