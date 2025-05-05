@@ -4,6 +4,10 @@ import { ListParamsDto } from 'src/shared/dto/list-params.dto';
 import { UsersService } from './users.service';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserListParamsDto } from './dto/user-list-params.dto';
+import { FindOptionsWhere, ILike } from 'typeorm';
+import { User } from './models/user.entity';
+import { UserRole } from 'src/infrastructure/enums/user-role.enum';
 
 @ApiTags('Users')
 @Controller('users')
@@ -18,8 +22,25 @@ export class UsersController {
 
   @Get('reciters')
   @Public()
-  async getReciters(@Query() listParams: ListParamsDto) {
-    return this.usersService.list(listParams, { role: 1 });
+  async getReciters(@Query() listParams: UserListParamsDto) {
+    const { search } = listParams;
+
+    const whereOptions: FindOptionsWhere<User>[] = [];
+
+    if (search) {
+      const searchPattern = ILike(`%${search}%`);
+
+      whereOptions.push(
+        { role: UserRole.RECITER, email: searchPattern },
+        { role: UserRole.RECITER, username: searchPattern },
+        { role: UserRole.RECITER, name: searchPattern },
+        { role: UserRole.RECITER, surname: searchPattern },
+      );
+    } else {
+      whereOptions.push({ role: UserRole.RECITER });
+    }
+
+    return this.usersService.list(listParams, whereOptions);
   }
 
   @Get(':id')
