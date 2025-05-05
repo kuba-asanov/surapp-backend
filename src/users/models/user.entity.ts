@@ -27,6 +27,9 @@ export class User extends BaseEntity {
   @Column({ type: 'text', default: '' })
   bio: string;
 
+  @Column({ type: 'text', nullable: true })
+  avatar_url: string;
+
   @Column({ type: 'boolean', default: false })
   onboarded: boolean;
 

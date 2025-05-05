@@ -35,6 +35,11 @@ export class UpdateUserDto extends BaseDto {
   @IsOptional()
   bio?: string;
 
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  avatar_url?: string;
+
   @ApiPropertyOptional({ enum: UserRole, enumName: 'UserRole' })
   @IsEnum(UserRole)
   @IsOptional()
