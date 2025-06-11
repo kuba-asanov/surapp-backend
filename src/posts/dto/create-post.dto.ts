@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
 } from 'class-validator';
 import { BaseDto } from 'src/shared/dto/base.dto';
@@ -29,7 +29,7 @@ export class CreatePostDto extends BaseDto {
     example: [1, 2, 3],
   })
   @IsArray()
-  @ArrayNotEmpty()
+  @IsOptional()
   @IsNumber({}, { each: true })
   @Type(() => Number)
   categoryIds: number[];
