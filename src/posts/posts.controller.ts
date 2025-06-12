@@ -22,7 +22,6 @@ import { Public } from 'src/auth/decorators/public.decorator';
 
 @ApiTags('Posts')
 @Controller('posts')
-@Public()
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
