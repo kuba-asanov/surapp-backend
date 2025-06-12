@@ -18,10 +18,11 @@ import { ListParamsDto } from 'src/shared/dto/list-params.dto';
 import { PostStatus } from 'src/infrastructure/enums/post-status.enum';
 import { AnswerPostDto } from './dto/answer-post.dto';
 import { PostListParamsDto } from './dto/post-list-params.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @ApiTags('Posts')
 @Controller('posts')
-@ApiBearerAuth()
+@Public()
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
@@ -37,7 +38,7 @@ export class PostsController {
   }
 
   @Get()
-  @ApiBearerAuth()
+  @Public()
   @ApiOperation({ summary: 'Get list of posts' })
   async findAll(@Query() listParamsDto: PostListParamsDto) {
     return this.postsService.findAll(listParamsDto);
@@ -50,7 +51,7 @@ export class PostsController {
   }
 
   @Get('answered')
-  @ApiBearerAuth()
+  @Public()
   @ApiOperation({ summary: 'Get list of posts' })
   async findAnswered(@Query() listParamsDto: ListParamsDto) {
     return this.postsService.list(
@@ -63,7 +64,6 @@ export class PostsController {
   }
 
   @Get(':id')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a post by id' })
   findOne(@Param('id') id: string) {
     return this.postsService.getBy(
